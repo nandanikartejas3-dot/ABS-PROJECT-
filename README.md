@@ -104,13 +104,7 @@ SIL results indicate simulation and generated-code outputs match closely.
 ![SIL testing results 2](SIl%20Testing%20Results%202.png)
 ![SIL testing results 3](SIl%20Testing%20Results%203.png)
 
-## Repository contents
-- `README.md`: this document
-- `KPIT Project.docx`: original project document
-- `KPIT Project.extracted.txt`: extracted text (used to build the README)
-- `KPIT Internship Report.pdf`: internship report
-- `final operation video.mp4`: demo/operation video
-- `*.png`: figures used throughout the documentation
+
 
 ## References
 1. S. John, “Artificial intelligent-based feedforward optimized PID wheel slip controller,” Proc. IEEE AFRICON Conf., 2013.
