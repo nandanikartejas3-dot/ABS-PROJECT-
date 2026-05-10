@@ -1,202 +1,118 @@
-# Anti-Lock Braking System (ABS) using MATLAB/Simulink
+# Modelling and Simulation of Anti-Lock Braking System (ABS) using MATLAB/Simulink
 
-## Project Overview
-This project focuses on the modelling, simulation, and validation of an Anti-Lock Braking System (ABS) using MATLAB/Simulink and Model-Based Design (MBD) techniques.
+## Project overview
+This project models and simulates an **Anti-Lock Braking System (ABS)** using **MATLAB/Simulink** with **Model-Based Design (MBD)** practices. The ABS controller prevents wheel lock-up during sudden braking by regulating brake pressure to keep the **wheel slip ratio** near an optimal value (typically **~0.2**) for improved traction, stability, and steering control.
 
-The primary objective of the system is to prevent wheel lock-up during sudden braking and maintain optimal wheel slip for improved vehicle stability, steering control, and reduced stopping distance.
+## Key highlights
+- **Closed-loop slip control** using a **PID controller** to modulate brake pressure/torque.
+- **Vehicle + wheel dynamics** modelling, including tyre-road friction characteristics.
+- **Performance comparison**: braking behaviour **with ABS** vs **without ABS**.
+- **Verification/Validation** using **SIL** and **PIL** style testing to compare simulation vs generated-code behaviour.
+- **GUI** built using **MATLAB App Designer** to load vehicle parameters via a dropdown (auto-populated into MATLAB base workspace).
 
-The ABS controller dynamically regulates brake pressure using a PID controller based on real-time wheel slip feedback.
+## Objectives
+- Design and simulate an ABS using MATLAB/Simulink
+- Calculate and monitor wheel slip ratio in real time
+- Prevent wheel lock-up during sudden braking
+- Maintain slip within an optimum range for maximum traction
+- Implement a PID-based brake pressure controller
+- Estimate tyre-road friction coefficient under varying conditions
+- Analyse stopping distance for different slip ratios
+- Validate generated embedded code using SIL/PIL testing
+- Understand real-world automotive safety systems using Model-Based Design techniques
 
----
-
-## Features
-- Real-time wheel slip calculation
-- PID-based brake pressure control
-- Vehicle and wheel dynamics modelling
-- Friction coefficient estimation
-- Stopping distance calculation
-- MATLAB/Simulink based simulation
-- SIL (Software-in-the-Loop) validation
-- PIL (Processor-in-the-Loop) testing
-- Auto-generated embedded C code using Embedded Coder
-- GUI developed using MATLAB App Designer
-
----
-
-## Technologies Used
-- MATLAB
-- Simulink
-- Embedded Coder
-- Simulink Coder
-- MATLAB App Designer
-- Control System Toolbox
-
----
-
-## Mathematical Modelling
-
-### 1. Vehicle Dynamics
-The vehicle deceleration equation is:
-
+## Mathematical model (core equations)
+### Vehicle longitudinal dynamics
 \[
 \frac{dV}{dt} = -\mu g
 \]
-
 Where:
-- \(V\) = Vehicle velocity
-- \(\mu\) = Tyre-road friction coefficient
-- \(g\) = Acceleration due to gravity
+- \(V\): vehicle speed  
+- \(\mu\): tyre-road friction coefficient  
+- \(g\): gravitational acceleration
 
----
-
-### 2. Wheel Dynamics
-
+### Wheel rotational dynamics
 \[
-J_w \frac{d\omega}{dt} = \mu m_t g R_w - T_b
+\frac{d\omega}{dt} = \frac{\mu m_t g R_w - T_b}{J_w}
 \]
-
 Where:
-- \(\omega\) = Wheel angular velocity
-- \(m_t\) = Quarter vehicle mass
-- \(R_w\) = Wheel radius
-- \(T_b\) = Brake torque
-- \(J_w\) = Wheel inertia
+- \(\omega\): wheel angular speed  
+- \(m_t\): quarter-vehicle mass  
+- \(R_w\): wheel radius  
+- \(T_b\): braking torque  
+- \(J_w\): wheel moment of inertia
 
----
-
-### 3. Wheel Slip Ratio
-
+### Wheel slip ratio
 \[
 S = \frac{V - \omega R}{V}
 \]
-
 Where:
-- \(S\) = Wheel slip ratio
-- \(V\) = Vehicle speed
-- \(\omega\) = Wheel angular speed
-- \(R\) = Wheel radius
+- \(S\): slip ratio  
+- \(R\): wheel radius  
 
-Optimal slip value ≈ **0.2**
+The controller aims to keep \(S\) close to **~0.2** to achieve high traction while avoiding lock-up.
 
----
-
-### 4. PID Control Logic
-
+## Control strategy (PID)
+The PID controller compares desired slip ratio vs actual slip ratio and outputs a brake actuation command:
 \[
-u(t)=K_p e(t)+K_i \int e(t)dt + K_d \frac{de(t)}{dt}
+u(t) = K_p e(t) + K_i \int e(t)\,dt + K_d \frac{de(t)}{dt}
 \]
+Where:
+- \(e(t)\): slip error  
+- \(K_p, K_i, K_d\): PID gains
 
-PID Gains Used:
-- **Kp = 30.009**
-- **Ki = 0.0002**
-- **Kd = 0.191**
+**Gains used**
+- \(K_p = 30.009\)
+- \(K_i = 0.0002\)
+- \(K_d = 0.191\)
 
----
+## Model architecture (Simulink)
+The model is built with modular subsystems (vehicle dynamics, wheel dynamics, slip calculation, brake pressure control, stopping distance estimation, etc.). Signals flow from vehicle/wheel states → slip calculation → PID controller → brake modulation.
 
-## Simulation Architecture
-The ABS model contains:
-- Vehicle Dynamics Subsystem
-- Wheel Dynamics Subsystem
-- Slip Ratio Estimator
-- PID Controller
-- Hydraulic Brake Pressure Block
-- Friction Coefficient Estimator
-- Stopping Distance Calculator
+![Simulink model / simulation image](Simulation%20Image.png)
 
-The PID controller continuously compares actual slip with desired slip and modulates brake pressure to avoid wheel lock-up.
+## Results (with ABS vs without ABS)
+Without ABS, wheel lock-up occurs quickly under hard braking, causing excessive slip, unstable deceleration, increased stopping distance, and reduced steering control.  
+With ABS, brake pressure is modulated to maintain slip near ~0.2, improving stability and reducing stopping distance.
 
----
+![Simulation result without ABS](Simulation%20Result%20Without%20ABS.png)
 
-## Simulation Results
+![Simulation result with ABS](Simulation%20Result%20With%20ABS.png)
 
-### Without ABS
-- Wheel lock-up occurs
-- Higher stopping distance
-- Loss of steering control
-- Excessive slip
+## Testing and observations (slip sweep)
+Testing at multiple slip targets shows stopping distance is **minimum around slip = 0.2**, supporting ~0.2 as an optimal slip value for the chosen friction model and conditions.
 
-### With ABS
-- Controlled braking
-- Stable wheel slip near 0.2
-- Reduced stopping distance
-- Improved traction and steering stability
+![Testing results for slip 0.2](Testing%20Reults%20for%200.2%20slip.png)
+![Testing results for slip 0.4](Testing%20Reults%20for%200.4%20slip.png)
+![Testing results for slip 0.6](Testing%20Reults%20for%200.6%20slip.png)
+![Testing results for slip 0.8](Testing%20Reults%20for%200.8%20slip.png)
 
----
+## Vehicle parameters
+Vehicle datasets used for testing are summarized here:
 
-## Testing Results
+![Vehicle parameters](Vehicle%20Parameters%20Used.png)
 
-| Slip Ratio | Stopping Distance | Stopping Time |
-|------------|------------------|---------------|
-| 0.2 | Minimum | Best Performance |
-| 0.4 | Increased | Moderate |
-| 0.6 | High | Poor |
-| 0.8 | Very High | Worst |
+## GUI (MATLAB App Designer)
+The GUI allows selecting a vehicle from a dropdown; selected vehicle parameters are loaded automatically into the MATLAB base workspace to run the ABS performance checks.
 
-Conclusion:
-The stopping distance is minimum when wheel slip is maintained around **0.2**.
+![GUI](GUI%20Interface%20Image.png)
 
----
+## SIL testing results (model vs generated code)
+SIL results indicate simulation and generated-code outputs match closely.
 
-## SIL/PIL Validation
-Software-in-the-Loop (SIL) and Processor-in-the-Loop (PIL) testing were performed to validate the generated embedded C code against the Simulink model.
+![SIL testing results 1](SIl%20Testing%20Results%201.png)
+![SIL testing results 2](SIl%20Testing%20Results%202.png)
+![SIL testing results 3](SIl%20Testing%20Results%203.png)
 
-Results showed:
-- Exact matching between simulation and generated code
-- No tolerance violations
-- Accurate real-time execution
-
----
-
-## Auto Code Generation
-Embedded C code was automatically generated using:
-- Simulink Coder
-- Embedded Coder
-
-Generated code includes:
-- PID controller implementation
-- Solver configuration
-- Continuous state update logic
-- Embedded compatible structure
-
----
-
-## GUI
-A MATLAB App Designer based GUI was developed to:
-- Select vehicle type
-- Automatically load vehicle parameters
-- Simplify ABS performance testing
-
----
-
-## Applications
-- Automotive Safety Systems
-- Vehicle Dynamics Research
-- Embedded Automotive Control
-- Model-Based Design Learning
-- ABS Controller Development
-
----
-
-## Future Scope
-- Hardware-in-the-Loop (HIL) Testing
-- Integration with Traction Control System (TCS)
-- Electronic Stability Control (ESC)
-- Adaptive ABS using AI/ML
-- Real-time ECU deployment using STM32/Raspberry Pi
-
----
-
-## Team Members
-- Tejas Nandanikar
-- Mahadev Lohare
-- Disha Parolsande
-
-Department of Electrical Engineering  
-COEP Technological University, Pune
-
----
+## Repository contents
+- `README.md`: this document
+- `KPIT Project.docx`: original project document
+- `KPIT Project.extracted.txt`: extracted text (used to build the README)
+- `KPIT Internship Report.pdf`: internship report
+- `final operation video.mp4`: demo/operation video
+- `*.png`: figures used throughout the documentation
 
 ## References
-1. S. John, “Artificial intelligent-based feedforward optimized PID wheel slip controller,” IEEE AFRICON, 2013.
+1. S. John, “Artificial intelligent-based feedforward optimized PID wheel slip controller,” Proc. IEEE AFRICON Conf., 2013.
 2. Mohammed Wafi, “Modelling and Simulation of ABS through Different Types of Controllers Using Simulink.”
-3. KPIT Genesis ABS Model Based Design Documentation.
+
