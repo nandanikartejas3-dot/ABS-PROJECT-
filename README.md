@@ -186,7 +186,7 @@ A MATLAB App Designer based GUI was developed to:
 
 ---
 
-## Authors
+## Team Members
 - Tejas Nandanikar
 - Mahadev Lohare
 - Disha Parolsande
